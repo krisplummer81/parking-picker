@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Parking Selection</title>
+  <style>
+    area[disabled] {
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Select Your Parking Spot</h2>
+<p id="welcomeMessage"></p>
+<img src="parking_lot_layout.png" usemap="#parkingmap" id="parkingImage" width="1000">
+
+<map name="parkingmap">
+  <!-- Example coordinates; update these based on actual positions -->
+  <area shape="rect" coords="100,200,130,230" href="#" alt="Spot 101" data-spot="101">
+  <area shape="rect" coords="140,200,170,230" href="#" alt="Spot 102" data-spot="102">
+  <area shape="rect" coords="180,200,210,230" href="#" alt="Spot 103" data-spot="103">
+</map>
+
+<script>
+  let studentName = prompt("Please enter your full name:");
+  if (!studentName) {
+    alert("You must enter a name to proceed.");
+    window.location.reload();
+  } else {
+    document.getElementById("welcomeMessage").textContent = `Welcome, ${studentName}. Please choose a parking spot.`;
+  }
+
+  const scriptURL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL"; // Replace this with your actual URL
+
+  const areas = document.querySelectorAll("area");
+  areas.forEach(area => {
+    area.addEventListener("click", (e) => {
+      e.preventDefault();
+      const spot = area.dataset.spot;
+      const confirmChoice = confirm(`Hi ${studentName}, are you sure you want to select spot ${spot}?`);
+      if (confirmChoice) {
+        area.setAttribute("disabled", "true");
+        alert(`Spot ${spot} assigned to ${studentName}!`);
+
+        // Send data to Google Sheets
+        fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: studentName, spot: spot })
+        }).then(response => {
+          console.log("Success!", response);
+        }).catch(error => {
+          console.error("Error!", error.message);
+        });
+      }
+    });
+  });
+</script>
+
+
+</body>
+</html>
